@@ -1,0 +1,79 @@
+
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dep-simplified-ai-parser
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: simplified-ai-parser
+  template:
+    metadata:
+      labels:
+        app: simplified-ai-parser
+    spec:
+      containers:
+      - name: simplified-ai-parser
+        image: jya0/simplified-ai-parser:2026-02-27
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 7656
+          name: http
+          protocol: TCP
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-simplified-ai-parser
+spec:
+  type: ClusterIP
+  selector:
+    app: simplified-ai-parser
+  ports:
+    - protocol: TCP
+      port: 7656
+      targetPort: 7656
+
+
+---
+
+
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: strip-prefix-simplified-ai-parser
+  # namespace: test-ns  # ← must match your Ingress & Service namespace
+spec:
+  stripPrefix:
+    prefixes:
+      - /simplified-ai-parser
+
+---
+
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-simplified-ai-parser
+  # namespace: test-ns  # ← must match the service's namespace
+  annotations:
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: default-strip-prefix-simplified-ai-parser@kubernetescrd
+    # Optional: add middleware if you have prefix stripping, auth, etc.
+spec:
+  # ingressClassName: kommander-traefik
+  rules:
+    - http:
+        paths:
+          - path: /simplified-ai-parser/
+            pathType: Prefix
+            backend:
+              service:
+                name: svc-simplified-ai-parser
+                port:
+                  number: 7656
