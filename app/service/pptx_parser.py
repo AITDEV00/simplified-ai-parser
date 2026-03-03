@@ -7,8 +7,8 @@ Speaker notes are excluded (only visible slide content).
 """
 
 import base64
+import hashlib
 import io
-import uuid
 import logging
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
@@ -113,9 +113,10 @@ def _extract_image_from_shape(shape) -> dict | None:
         base64_data = base64.b64encode(img_data).decode("utf-8")
         data_uri = f"data:image/{img_format};base64,{base64_data}"
 
+        image_hash = hashlib.md5(img_data).hexdigest().upper()
         return {
             "data_uri": data_uri,
-            "id": uuid.uuid4().hex[:8]
+            "id": image_hash
         }
     except Exception as e:
         logger.warning(f"Failed to extract image: {e}")

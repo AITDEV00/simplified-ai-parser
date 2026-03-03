@@ -1,13 +1,13 @@
 """
 Image Extractor Utility
 
-Extracts base64 images from markdown content and replaces them with UUID references.
+Extracts base64 images from markdown content and replaces them with content-hash references.
 All images are converted to PNG format for consistency.
 """
 
 import re
-import uuid
 import base64
+import hashlib
 import io
 from typing import Tuple, Dict
 from PIL import Image
@@ -15,15 +15,15 @@ from PIL import Image
 
 def extract_and_replace_images(markdown_content: str) -> Tuple[str, Dict[str, str]]:
     """
-    Extract base64 images from markdown, convert to PNG, and replace with UUID references.
+    Extract base64 images from markdown, convert to PNG, and replace with content-hash references.
 
     Args:
         markdown_content: Markdown content with inline base64 images
 
     Returns:
         Tuple of:
-        - Modified markdown with UUID image references
-        - Dictionary with UUID filenames as keys and base64 data URIs as values (all as PNG)
+        - Modified markdown with content-hash image references
+        - Dictionary with content-hash filenames as keys and base64 data URIs as values (all as PNG)
     """
     images = {}
 
@@ -77,14 +77,18 @@ def extract_and_replace_images(markdown_content: str) -> Tuple[str, Dict[str, st
             # If base64 decode failed, keep original
             png_base64 = base64_data
 
-        # Generate UUID for this image
-        image_id = uuid.uuid4().hex[:16]
-        image_filename = f"{image_id}.png"
+        # Generate content hash (MinerU-compatible: MD5 of bytes, full hex, uppercase)
+        try:
+            bytes_for_hash = base64.b64decode(png_base64)
+        except Exception:
+            bytes_for_hash = png_base64.encode("utf-8")
+        image_hash = hashlib.md5(bytes_for_hash).hexdigest().upper()
+        image_filename = f"{image_hash}.png"
 
         # Store the image mapping (always as PNG)
         images[image_filename] = f"data:image/png;base64,{png_base64}"
 
-        # Replace with UUID reference
+        # Replace with content-hash reference
         return f"![{alt_text}]({image_filename})"
 
     # Replace all images in the content

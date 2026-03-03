@@ -10,8 +10,8 @@ For full fidelity, LibreOffice would be required.
 """
 
 import base64
+import hashlib
 import io
-import uuid
 import logging
 import openpyxl
 from PIL import Image
@@ -76,13 +76,14 @@ def _extract_images_from_sheet(ws) -> list[dict]:
             from_col = image.anchor._from.col
             from_row = image.anchor._from.row
 
+            image_hash = hashlib.md5(img_data).hexdigest().upper()
             images.append({
                 "data_uri": data_uri,
                 "row": from_row,
                 "col": from_col,
                 "width": width_px,
                 "height": height_px,
-                "id": uuid.uuid4().hex[:8]
+                "id": image_hash
             })
         except Exception as e:
             logger.warning(f"Failed to extract image: {e}")
