@@ -61,6 +61,9 @@ Convert a file to Markdown.
   "file_type": "docx",
   "parsed_md_content": "# Heading\n\nContent...",
   "processing_time": 1.234
+  "images": {
+    "<UUID16>.png": <b64_imgage>
+  }
 }
 ```
 
