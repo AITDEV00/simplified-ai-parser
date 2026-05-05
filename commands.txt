@@ -1,0 +1,39 @@
+# ============================================================
+# How to run the Simplified AI Parser server + benchmark
+# ============================================================
+
+# ------- Terminal 1: Start the server -------
+
+cd /home/jyao/ait-projects/parser/simplified-ai-parser
+
+# Activate the virtual environment
+source .venv/bin/activate
+
+# Start the server (4 workers for concurrency)
+python server.py
+
+# You should see:
+#   INFO:     Uvicorn running on http://0.0.0.0:7656 (Press CTRL+C to quit)
+#   INFO:     Started parent process [xxxxx]
+#   INFO:     Started server process [xxxxx]  (x4)
+
+
+# ------- Terminal 2: Run the benchmark -------
+
+cd /home/jyao/ait-projects/parser/simplified-ai-parser
+
+# Activate the virtual environment
+source .venv/bin/activate
+
+# Run the benchmark script
+python tests/benchmark.py
+
+# The script will:
+#   Round 1:   5 files sent concurrently
+#   Round 2:  10 files sent concurrently
+#   Round 3:  15 files sent concurrently
+#   ...
+#   Round 10: 50 files sent concurrently
+#
+# After each round it prints per-file latency (ms) and round stats.
+# At the end it prints a full summary table.

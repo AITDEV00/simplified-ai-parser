@@ -3,9 +3,7 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install mupdf-tools for PDF processing
 RUN apt-get update && apt-get install -y \
-    mupdf-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
